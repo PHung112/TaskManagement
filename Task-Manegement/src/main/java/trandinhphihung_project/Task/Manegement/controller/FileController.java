@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -33,8 +35,20 @@ public class FileController {
             if (!resource.exists() || !resource.isReadable()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File không tìm thấy");
             }
+
+                // Cắt UUID khỏi tên file lưu (uuid_originalName.ext -> originalName.ext)
+                String originalName = filename.contains("_")
+                    ? filename.substring(filename.indexOf("_") + 1)
+                    : filename;
+                String safeOriginalName = originalName.replace("\"", "");
+                String encodedOriginalName = URLEncoder
+                    .encode(safeOriginalName, StandardCharsets.UTF_8)
+                    .replace("+", "%20");
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + safeOriginalName + "\"; filename*=UTF-8''" + encodedOriginalName)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
         } catch (MalformedURLException e) {

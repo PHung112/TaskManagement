@@ -1,0 +1,14 @@
+# VSCode
+.vscode/
+
+# build Java / Spring
+target/
+*.log
+
+# node modules (frontend)
+node_modules/
+dist/
+
+# system files
+.DS_Store
+Thumbs.db

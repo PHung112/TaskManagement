@@ -126,7 +126,7 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
-
+    
     // DTO classes
     public static class CreateTaskRequest {
         public Long projectId;

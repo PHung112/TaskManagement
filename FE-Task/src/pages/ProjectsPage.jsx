@@ -261,10 +261,21 @@ export default function ProjectsPage() {
     if (submissionLink.startsWith("/api/files/")) {
       try {
         const res = await http.get(submissionLink, { responseType: "blob" });
+        const disposition = res.headers?.["content-disposition"] || "";
+        let downloadName = submissionLink.split("/").pop();
+
+        const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match?.[1]) {
+          try { downloadName = decodeURIComponent(utf8Match[1]); } catch {}
+        } else {
+          const normalMatch = disposition.match(/filename="?([^";]+)"?/i);
+          if (normalMatch?.[1]) downloadName = normalMatch[1];
+        }
+
         const url = URL.createObjectURL(res.data);
         const a = document.createElement("a");
         a.href = url;
-        a.download = submissionLink.split("/").pop();
+        a.download = downloadName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
